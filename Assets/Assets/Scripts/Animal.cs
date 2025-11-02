@@ -107,7 +107,7 @@ public abstract class Animal : MonoBehaviour
         switch (targetPicking)
         {
             case PickingTargetState.Wandering:
-                if (hunger <= 25.000091f)
+                if ( hunger <= 25 )
                 {
                     targetPicking = PickingTargetState.LookingForFood;
                 }
@@ -132,7 +132,7 @@ public abstract class Animal : MonoBehaviour
                 break;
             
             case PickingTargetState.LookingForFood:
-                if (hunger <= 25)
+                if ( hunger <= 25 )
                 {
                     var foodPosition = FindFirstObjectByType<Food>().transform.position;
                     Target.position = foodPosition;
