@@ -1,6 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Serialization;
+
 public abstract class Animal : MonoBehaviour
 {
     public abstract class States
@@ -38,7 +40,7 @@ public abstract class Animal : MonoBehaviour
         }
         public override void OnExit()
         {
-            
+            Animal.PickingTarget();
         }
     }
 
@@ -51,10 +53,10 @@ public abstract class Animal : MonoBehaviour
 
         public override void OnUpdate()
         {
-            var direction = (Animal.Target.transform.position - Animal.transform.position).normalized;
+            var direction = (Animal.target.transform.position - Animal.transform.position).normalized;
             Animal.transform.rotation = Quaternion.Slerp(Animal.transform.rotation, Quaternion.LookRotation(direction), Animal.rotateSpeed * Time.deltaTime);
             float dot = Vector3.Dot(Animal.transform.forward, direction);
-            if (dot > 0.999988f)
+            if (dot >= 0.999988f)
             {
                 Animal.SwitchState(new MovingState());
             }
@@ -75,10 +77,10 @@ public abstract class Animal : MonoBehaviour
 
         public override void OnUpdate()
         {
-            float distance = Vector3.Distance(Animal.transform.position , Animal.Target.transform.position);
+            float distance = Vector3.Distance(Animal.transform.position , Animal.target.transform.position);
             if (distance >= 0.00001f)
             {
-                Animal.transform.position = Vector3.MoveTowards(Animal.transform.position, Animal.Target.transform.position, Time.deltaTime);
+                Animal.transform.position = Vector3.MoveTowards(Animal.transform.position, Animal.target.transform.position, Time.deltaTime);
             }
             else
             {
@@ -99,7 +101,6 @@ public abstract class Animal : MonoBehaviour
         LookingForWater,
     }
     public PickingTargetState targetPicking;
-
     public void PickingTarget()
     {
         switch (targetPicking)
@@ -115,25 +116,38 @@ public abstract class Animal : MonoBehaviour
                 }
                 else
                 {
-                    targetPicking = PickingTargetState.Wandering;
+                    Vector3 wanderingTarget = new Vector3(Random.Range( -spawnRange + transform.position.x , spawnRange + transform.position.x) , transform.position.y , Random.Range( -spawnRange + transform.position.z , spawnRange + transform.position.z ));
+                    target.position = wanderingTarget;
                 }
                 break;
             
             case PickingTargetState.LookingForFood:
+                if (hunger <= 25)
+                {
+                    Food food = FindFirstObjectByType<Food>();
+                    target.position = food.transform.position;
+                }
+                else
+                {
+                    targetPicking = PickingTargetState.Wandering;
+                }
                 break;
             
             case PickingTargetState.LookingForWater:
                 break;
         }
     }
+    /// <summary>
+    /// Assign States stuffs
+    /// </summary>
+    private States state;
     
-    [SerializeField] private PickingTargetState pickingState;
     [Header("Movement")] 
     [SerializeField] float speed;
+    [SerializeField] private float rotateSpeed;
     
     [Header("Target Spawn Range")] 
     [SerializeField] float spawnRange;
-    Vector3 _targetPos;
 
     [Header("Animals Stats")]
     [SerializeField] private float health = 100;
@@ -141,14 +155,8 @@ public abstract class Animal : MonoBehaviour
     [SerializeField] public float thirst = 100;
     [SerializeField] private float urgetobreed;
     [SerializeField] private float waitingDuration;
-    [SerializeField] private float rotateSpeed;
-    [SerializeField] private Transform _target;
-    private States _state;
-    public Transform Target
-    {
-        get =>  _target;
-        private set => _target = value;
-    }
+    [SerializeField] private Transform target;
+    
     public float Health
     {
         get => health;
@@ -162,9 +170,9 @@ public abstract class Animal : MonoBehaviour
     }
     void Update()
     {
-        if (_state != null)
+        if (state != null)
         {
-            _state.OnUpdate();
+            state.OnUpdate();
         }
         StatsUpdate();
     }
@@ -176,17 +184,23 @@ public abstract class Animal : MonoBehaviour
     }
     void SwitchState(States states)
     {
-        if (_state != null)
+        if (state != null)
         {
-            _state.OnExit();
+            state.OnExit();
         }
-        _state = states;
-        _state.Initialize(this);
-        if (_state != null)
+        state = states;
+        state.Initialize(this);
+        if (state != null)
         {
-            _state.OnEnter();
+            state.OnEnter();
         }
-        _state = states;
+        state = states;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(transform.position , target.position);
     }
 }
 
