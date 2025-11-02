@@ -1,4 +1,4 @@
-using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -15,14 +15,14 @@ public abstract class Animal : MonoBehaviour
         /// <param name="animal"></param>
         public void Initialize(Animal animal)
         {
-            Animal =  animal;
+            Animal = animal;
         }
         
         public abstract void OnUpdate();
         public abstract void OnExit();
     }
 
-    public class Waiting : States
+    public class WaitStage : States
     {
         private float timer;
         public override void OnEnter()
@@ -35,6 +35,7 @@ public abstract class Animal : MonoBehaviour
             timer += Time.deltaTime;
             if (timer >= Animal.waitingDuration)
             {
+                
                 Animal.SwitchState(new LookingState());
             }
         }
@@ -53,8 +54,8 @@ public abstract class Animal : MonoBehaviour
 
         public override void OnUpdate()
         {
-            var direction = (Animal.target.transform.position - Animal.transform.position).normalized;
-            Animal.transform.rotation = Quaternion.Slerp(Animal.transform.rotation, Quaternion.LookRotation(direction), Animal.rotateSpeed * Time.deltaTime);
+            var direction = (Animal._target.transform.position - Animal.transform.position).normalized;
+            Animal.transform.rotation = Quaternion.Slerp(Quaternion.LookRotation(Animal.transform.forward), Quaternion.LookRotation(direction), Animal.rotateSpeed * Time.deltaTime);
             float dot = Vector3.Dot(Animal.transform.forward, direction);
             if (dot >= 0.999988f)
             {
@@ -77,14 +78,14 @@ public abstract class Animal : MonoBehaviour
 
         public override void OnUpdate()
         {
-            float distance = Vector3.Distance(Animal.transform.position , Animal.target.transform.position);
+            float distance = Vector3.Distance(Animal.transform.position , Animal.Target.transform.position);
             if (distance >= 0.00001f)
             {
-                Animal.transform.position = Vector3.MoveTowards(Animal.transform.position, Animal.target.transform.position, Time.deltaTime);
+                Animal.transform.position = Vector3.MoveTowards(Animal.transform.position, Animal.Target.transform.position, Animal.speed * Time.deltaTime);
             }
             else
             {
-                Animal.SwitchState(new Waiting());
+                Animal.SwitchState(new WaitStage());
             }
         }
         
@@ -106,101 +107,111 @@ public abstract class Animal : MonoBehaviour
         switch (targetPicking)
         {
             case PickingTargetState.Wandering:
-                if (hunger <= 25)
+                if (hunger <= 25.000091f)
                 {
                     targetPicking = PickingTargetState.LookingForFood;
                 }
-                else if (thirst <= 25)
-                {
-                    targetPicking = PickingTargetState.LookingForWater;
-                }
                 else
                 {
-                    Vector3 wanderingTarget = new Vector3(Random.Range( -spawnRange + transform.position.x , spawnRange + transform.position.x) , transform.position.y , Random.Range( -spawnRange + transform.position.z , spawnRange + transform.position.z ));
-                    target.position = wanderingTarget;
+                    int spawnRange = Random.Range(5, 20);
+                    int counter = 0;
+                    Debug.Log($"Last Range Value : {lastRangeValue}");
+                    while (spawnRange == lastRangeValue && counter <= 10)
+                    {
+                        counter++;
+                        spawnRange = Random.Range(5, 20);
+                        
+                    }
+                    lastRangeValue = spawnRange;
+                    Debug.Log($"Current Range : {spawnRange}");
+                    float randomX = Random.Range(transform.position.x - spawnRange, transform.position.x + spawnRange);
+                    float randomZ = Random.Range(transform.position.z - spawnRange, transform.position.z + spawnRange);
+                    var targetPos = new Vector3(randomX, transform.position.y, randomZ);
+                    Target.position = targetPos;
                 }
                 break;
             
             case PickingTargetState.LookingForFood:
                 if (hunger <= 25)
                 {
-                    Food food = FindFirstObjectByType<Food>();
-                    target.position = food.transform.position;
+                    var foodPosition = FindFirstObjectByType<Food>().transform.position;
+                    Target.position = foodPosition;
                 }
                 else
                 {
                     targetPicking = PickingTargetState.Wandering;
                 }
                 break;
-            
-            case PickingTargetState.LookingForWater:
-                break;
         }
     }
     /// <summary>
     /// Assign States stuffs
     /// </summary>
-    private States state;
+    private States _state;
+    private Food food;
     
     [Header("Movement")] 
     [SerializeField] float speed;
     [SerializeField] private float rotateSpeed;
     
-    [Header("Target Spawn Range")] 
-    [SerializeField] float spawnRange;
-
     [Header("Animals Stats")]
     [SerializeField] private float health = 100;
     [SerializeField] public float hunger = 100;
     [SerializeField] public float thirst = 100;
     [SerializeField] private float urgetobreed;
     [SerializeField] private float waitingDuration;
-    [SerializeField] private Transform target;
+    [SerializeField] private Transform _target;
     
+    private int lastRangeValue;
+    public Transform Target
+    {
+        get => _target; 
+        set =>  _target = value;
+    }
+
     public float Health
     {
         get => health;
         set => health = value;
     }
-    private Food food;
     
     void Start()
     {
-        SwitchState(new Waiting());    
+        SwitchState(new WaitStage());    
     }
     void Update()
     {
-        if (state != null)
-        {
-            state.OnUpdate();
-        }
         StatsUpdate();
+        if (_state != null)
+        {
+            _state.OnUpdate();
+        }
     }
     void StatsUpdate()
     {
         hunger = hunger >= 0.00001 ? hunger -= 0.5f * Time.deltaTime : health;
-        thirst = thirst >= 0.00001 ? thirst -= Time.deltaTime : thirst;
+        //thirst = thirst >= 0.00001 ? thirst -= Time.deltaTime : thirst;
         urgetobreed = urgetobreed <= 99.99999f ?  urgetobreed += Time.deltaTime : urgetobreed;
     }
     void SwitchState(States states)
     {
-        if (state != null)
+        if (_state != null)
         {
-            state.OnExit();
+            _state.OnExit();
         }
-        state = states;
-        state.Initialize(this);
-        if (state != null)
+        _state = states;
+        _state.Initialize(this);
+        if (_state != null)
         {
-            state.OnEnter();
+            _state.OnEnter();
         }
-        state = states;
+        _state = states;
     }
 
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position , target.position);
+        Gizmos.DrawLine(transform.position , Target.transform.position);
     }
 }
 
