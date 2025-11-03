@@ -35,7 +35,6 @@ public abstract class Animal : MonoBehaviour
             timer += Time.deltaTime;
             if (timer >= Animal.waitingDuration)
             {
-                
                 Animal.SwitchState(new LookingState());
             }
         }
@@ -107,37 +106,32 @@ public abstract class Animal : MonoBehaviour
         switch (targetPicking)
         {
             case PickingTargetState.Wandering:
+                int spawnRange = Random.Range(5, 20);
+                int counter = 0;
+                Debug.Log($"Last Range Value : {lastRangeValue}");
+                while (spawnRange == lastRangeValue && counter <= 10)
+                {
+                    counter++;
+                    spawnRange = Random.Range(5, 20);
+                        
+                }
+                lastRangeValue = spawnRange;
+                Debug.Log($"Current Range : {spawnRange}");
+                float randomX = Random.Range(transform.position.x - spawnRange, transform.position.x + spawnRange);
+                float randomZ = Random.Range(transform.position.z - spawnRange, transform.position.z + spawnRange);
+                var targetPos = new Vector3(randomX, transform.position.y, randomZ);
+                Target.position = targetPos;
                 if ( hunger <= 25 )
                 {
                     targetPicking = PickingTargetState.LookingForFood;
                 }
-                else
-                {
-                    int spawnRange = Random.Range(5, 20);
-                    int counter = 0;
-                    Debug.Log($"Last Range Value : {lastRangeValue}");
-                    while (spawnRange == lastRangeValue && counter <= 10)
-                    {
-                        counter++;
-                        spawnRange = Random.Range(5, 20);
-                        
-                    }
-                    lastRangeValue = spawnRange;
-                    Debug.Log($"Current Range : {spawnRange}");
-                    float randomX = Random.Range(transform.position.x - spawnRange, transform.position.x + spawnRange);
-                    float randomZ = Random.Range(transform.position.z - spawnRange, transform.position.z + spawnRange);
-                    var targetPos = new Vector3(randomX, transform.position.y, randomZ);
-                    Target.position = targetPos;
-                }
                 break;
             
             case PickingTargetState.LookingForFood:
-                if ( hunger <= 25 )
-                {
-                    var foodPosition = FindFirstObjectByType<Food>().transform.position;
-                    Target.position = foodPosition;
-                }
-                else
+                Debug.LogError("This line does run");
+                _food = FindObjectOfType<Food>()?.gameObject;
+                Target.position = _food.transform.position;
+                if (hunger >= 25)
                 {
                     targetPicking = PickingTargetState.Wandering;
                 }
@@ -161,6 +155,7 @@ public abstract class Animal : MonoBehaviour
     [SerializeField] private float urgetobreed;
     [SerializeField] private float waitingDuration;
     [SerializeField] private Transform _target;
+    private GameObject _food;
     
     private int lastRangeValue;
     public Transform Target
@@ -186,6 +181,7 @@ public abstract class Animal : MonoBehaviour
         {
             _state.OnUpdate();
         }
+        
     }
     void StatsUpdate()
     {
