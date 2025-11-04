@@ -650,12 +650,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cc6da8121ab54041b6a43a902690e3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RTSMode: 1
-  FlyCam: 0
   moveSpeed: 10
   rotateSpeed: 1
-  target: {fileID: 0}
+  target: {fileID: 1953626575}
+  offset: {x: 15, y: 3, z: 0}
   mouseSensitivity: 10
+  _states: 0
 --- !u!1 &1953626570
 GameObject:
   m_ObjectHideFlags: 0
