@@ -1,7 +1,8 @@
-using System.Collections.Generic;
+using System;
+using Assets.Scripts.Food;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 public abstract class Animal : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public abstract class Animal : MonoBehaviour
 
     public class WaitStage : States
     {
-        private float timer;
+        private float _timer;
         public override void OnEnter()
         {
             
@@ -32,8 +33,8 @@ public abstract class Animal : MonoBehaviour
 
         public override void OnUpdate()
         {
-            timer += Time.deltaTime;
-            if (timer >= Animal.waitingDuration)
+            _timer += Time.deltaTime;
+            if (_timer >= Animal.waitingDuration)
             {
                 Animal.SwitchState(new LookingState());
             }
@@ -74,7 +75,6 @@ public abstract class Animal : MonoBehaviour
         {
             
         }
-
         public override void OnUpdate()
         {
             float distance = Vector3.Distance(Animal.transform.position , Animal.Target.transform.position);
@@ -87,13 +87,12 @@ public abstract class Animal : MonoBehaviour
                 Animal.SwitchState(new WaitStage());
             }
         }
-        
         public override void OnExit()
         {
             
         }
     }
-    
+
     public enum PickingTargetState
     {
         Wandering,
@@ -106,9 +105,8 @@ public abstract class Animal : MonoBehaviour
         switch (targetPicking)
         {
             case PickingTargetState.Wandering:
-                int spawnRange = Random.Range(5, 20);
+                int spawnRange = Random.Range(10, 25);
                 int counter = 0;
-                Debug.Log($"Last Range Value : {lastRangeValue}");
                 while (spawnRange == lastRangeValue && counter <= 10)
                 {
                     counter++;
@@ -116,7 +114,6 @@ public abstract class Animal : MonoBehaviour
                         
                 }
                 lastRangeValue = spawnRange;
-                Debug.Log($"Current Range : {spawnRange}");
                 float randomX = Random.Range(transform.position.x - spawnRange, transform.position.x + spawnRange);
                 float randomZ = Random.Range(transform.position.z - spawnRange, transform.position.z + spawnRange);
                 var targetPos = new Vector3(randomX, transform.position.y, randomZ);
@@ -129,7 +126,7 @@ public abstract class Animal : MonoBehaviour
             
             case PickingTargetState.LookingForFood:
                 Debug.LogError("This line does run");
-                _food = FindObjectOfType<Food>()?.gameObject;
+                _food = FindFirstObjectByType<Food>()?.gameObject;
                 Target.position = _food.transform.position;
                 if (hunger >= 25)
                 {
@@ -138,9 +135,7 @@ public abstract class Animal : MonoBehaviour
                 break;
         }
     }
-    /// <summary>
-    /// Assign States stuffs
-    /// </summary>
+    
     private States _state;
     private Food food;
     
@@ -156,6 +151,8 @@ public abstract class Animal : MonoBehaviour
     [SerializeField] private float waitingDuration;
     [SerializeField] private Transform _target;
     private GameObject _food;
+
+    public UnityEvent onReachEvent;
     
     private int lastRangeValue;
     public Transform Target
@@ -172,7 +169,7 @@ public abstract class Animal : MonoBehaviour
     
     void Start()
     {
-        SwitchState(new WaitStage());    
+        SwitchState(new WaitStage());
     }
     void Update()
     {
@@ -181,13 +178,12 @@ public abstract class Animal : MonoBehaviour
         {
             _state.OnUpdate();
         }
-        
     }
     void StatsUpdate()
     {
-        hunger = hunger >= 0.00001 ? hunger -= 0.5f * Time.deltaTime : health;
+        hunger = hunger >= 0.00001 ? hunger -= 0.5f * Time.deltaTime : hunger = 0;
         //thirst = thirst >= 0.00001 ? thirst -= Time.deltaTime : thirst;
-        urgetobreed = urgetobreed <= 99.99999f ?  urgetobreed += Time.deltaTime : urgetobreed;
+        urgetobreed = urgetobreed <= 99.99999f ?  urgetobreed += Time.deltaTime : urgetobreed = 100;
     }
     void SwitchState(States states)
     {
@@ -203,7 +199,13 @@ public abstract class Animal : MonoBehaviour
         }
         _state = states;
     }
-
+    void OnCollisionExit(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Food"))
+        {
+            hunger += food.Filling;
+        }
+    }
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

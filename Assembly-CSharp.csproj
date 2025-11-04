@@ -50,6 +50,7 @@
     <Compile Include="Assets\Assets\Scripts\Food\Food.cs" />
     <Compile Include="Assets\Assets\Scripts\AI\GizmoHelper.cs" />
     <Compile Include="Assets\Assets\Singleton\Singleton.cs" />
+    <Compile Include="Assets\Assets\Scripts\System\FrameRate.cs" />
     <Compile Include="Assets\Assets\Scripts\AI\StateMachineAdvanced.cs" />
     <Compile Include="Assets\Assets\Scripts\AI\Editor.cs" />
     <Compile Include="Assets\Assets\Scripts\Rabbit.cs" />

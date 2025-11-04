@@ -1,15 +1,18 @@
-using NUnit.Framework;
 using UnityEngine;
 
-public class Food : MonoBehaviour
+namespace Assets.Scripts.Food
 {
-    [SerializeField] private float filling = 50;
-    public float Filling => filling;
-    void OnCollisionEnter(Collision collision)
+    public class Food : MonoBehaviour
     {
-        if (collision.gameObject.CompareTag("Rabbit"))
+        [SerializeField] private float filling = 50;
+        public float Filling => filling;
+
+        void OnCollisionEnter(Collision collision)
         {
-            Destroy(gameObject);
+            if (collision.gameObject.CompareTag("Rabbit"))
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

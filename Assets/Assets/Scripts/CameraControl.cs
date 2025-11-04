@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
-
+[ExecuteInEditMode]
 public class Camera : MonoBehaviour
 {
     [Header("Camera Movement")]
@@ -16,6 +16,9 @@ public class Camera : MonoBehaviour
     [Header("Tracking Target")] 
     [SerializeField] private Transform target;
     [SerializeField] private Vector3 offset;
+
+    [Header("Utility")] 
+    private Vector3 currentCameraRotation;
 
     [Header("Mouse Sensitivity")]
     [Tooltip("Mouse Sensitivity")] [SerializeField] public float mouseSensitivity = 10f;
@@ -60,6 +63,7 @@ public class Camera : MonoBehaviour
                         }
                     }
                     
+                
                     //Rotate on mouse
                     if(Mouse.current.middleButton.isPressed) {     
                         // Get mouse movement delta (new Input System)
@@ -72,15 +76,16 @@ public class Camera : MonoBehaviour
                         dirX = Mathf.Clamp(dirX, -45f, 80f); // return dirX value between -90 and 90 
             
                         // Apply rotation
-                        transform.localRotation = Quaternion.Euler(dirX, dirY, 0);
+                        transform.rotation = Quaternion.Euler(dirX, dirY, 0);
                     } 
                     break;
             
             case States.RTSMode:
+                
                 // Cam auto rotation
                 Vector3 targetDir = (target.transform.position - transform.position).normalized;
                 transform.rotation = Quaternion.Slerp(Quaternion.LookRotation(transform.forward), Quaternion.LookRotation(targetDir), rotateSpeed * Time.deltaTime);
-                
+                 
                 // Cam auto following
                 Vector3 cameraMovement = target.position + offset;
                 Vector3 smoothMovement = Vector3.Lerp(transform.position, cameraMovement, 0.125f);

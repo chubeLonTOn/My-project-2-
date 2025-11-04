@@ -423,6 +423,7 @@
 "Assets/Assets/Scripts/CameraControl.cs"
 "Assets/Assets/Scripts/Food/Food.cs"
 "Assets/Assets/Scripts/Rabbit.cs"
+"Assets/Assets/Scripts/System/FrameRate.cs"
 "Assets/Assets/Singleton/Singleton.cs"
 -langversion:9.0
 /deterministic
