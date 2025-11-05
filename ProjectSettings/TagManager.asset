@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Terrain
   - Rabbit
+  - Food
   layers:
   - Default
   - TransparentFX
