@@ -142,6 +142,8 @@ public abstract class Animal : MonoBehaviour
     [Header("Movement")] 
     [SerializeField] float speed;
     [SerializeField] private float rotateSpeed;
+    [SerializeField] private float jumpValue;
+    [SerializeField] private AnimationCurve jumpFactor;
     
     [Header("Animals Stats")]
     [SerializeField] private float health = 100;
@@ -199,13 +201,7 @@ public abstract class Animal : MonoBehaviour
         }
         _state = states;
     }
-    void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Food"))
-        {
-            hunger += food.Filling;
-        }
-    }
+    
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
