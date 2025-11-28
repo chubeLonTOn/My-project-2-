@@ -1,5 +1,4 @@
 using System;
-using Assets.Scripts.Food;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
@@ -110,7 +109,7 @@ public abstract class Animal : MonoBehaviour
                 while (spawnRange == lastRangeValue && counter <= 10)
                 {
                     counter++;
-                    spawnRange = Random.Range(5, 20);
+                    spawnRange = Random.Range(10, 25);
                         
                 }
                 lastRangeValue = spawnRange;
@@ -118,26 +117,19 @@ public abstract class Animal : MonoBehaviour
                 float randomZ = Random.Range(transform.position.z - spawnRange, transform.position.z + spawnRange);
                 var targetPos = new Vector3(randomX, transform.position.y, randomZ);
                 Target.position = targetPos;
-                if ( hunger <= 25 )
+                if ( Hunger <= 25 )
                 {
                     targetPicking = PickingTargetState.LookingForFood;
                 }
                 break;
             
             case PickingTargetState.LookingForFood:
-                Debug.LogError("This line does run");
-                _food = FindFirstObjectByType<Food>()?.gameObject;
-                Target.position = _food.transform.position;
-                if (hunger >= 25)
-                {
-                    targetPicking = PickingTargetState.Wandering;
-                }
+                FindFood();
                 break;
         }
     }
     
     private States _state;
-    private Food food;
     
     [Header("Movement")] 
     [SerializeField] float speed;
@@ -147,14 +139,15 @@ public abstract class Animal : MonoBehaviour
     
     [Header("Animals Stats")]
     [SerializeField] private float health = 100;
-    [SerializeField] public float hunger = 100;
+    [SerializeField] public float Hunger = 100;
+    [SerializeField] private float _hungerFindFoodPoint = 25;
     [SerializeField] public float thirst = 100;
     [SerializeField] private float urgetobreed;
     [SerializeField] private float waitingDuration;
     [SerializeField] private Transform _target;
     private GameObject _food;
-
-    public UnityEvent onReachEvent;
+    
+    //public UnityEvent onReachEvent;
     
     private int lastRangeValue;
     public Transform Target
@@ -183,9 +176,16 @@ public abstract class Animal : MonoBehaviour
     }
     void StatsUpdate()
     {
-        hunger = hunger >= 0.00001 ? hunger -= 0.5f * Time.deltaTime : hunger = 0;
+        Hunger = Hunger >= 0.00001 ? Hunger -= 0.5f * Time.deltaTime : Hunger = 0;
         //thirst = thirst >= 0.00001 ? thirst -= Time.deltaTime : thirst;
         urgetobreed = urgetobreed <= 99.99999f ?  urgetobreed += Time.deltaTime : urgetobreed = 100;
+        if (Hunger == 0)
+        {
+            Health = Health >= 0.00001 ? Health -= 0.5f * Time.deltaTime : Health = 0;
+        } else 
+        {
+            Health = Health <= 99.99999f ?  Health += Time.deltaTime : Health = 100;
+        }
     }
     void SwitchState(States states)
     {
@@ -201,7 +201,27 @@ public abstract class Animal : MonoBehaviour
         }
         _state = states;
     }
+
+    private void FindFood()
+    {
+        GameObject foodSource = FindAnyObjectByType<Food>()?.gameObject;
+        _food = foodSource;
+        if (_food != null) Target.position = _food.transform.position;
+        Debug.LogError("Cant found food source");
+        int count = 0;
+        while (Hunger >= _hungerFindFoodPoint || count <= 5)
+        {
+            count++;
+            targetPicking = PickingTargetState.Wandering;
+        }
+        count = 0;
+    }
     
+    public void Eating(Food food)
+    {
+        if (!food) return;
+        Hunger += food.Filling;
+    }
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;

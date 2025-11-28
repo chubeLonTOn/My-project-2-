@@ -1,18 +1,25 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-namespace Assets.Scripts.Food
+public class Food : MonoBehaviour
 {
-    public class Food : MonoBehaviour
-    {
-        [SerializeField] private float filling = 50;
-        public float Filling => filling;
+    [SerializeField] private float filling = 50;
+    [FormerlySerializedAs("_animal")] [SerializeField] private Rabbit animal;
+    public float Filling => filling;
 
-        void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Rabbit"))
         {
-            if (collision.gameObject.CompareTag("Rabbit"))
-            {
-                Destroy(gameObject);
-            }
+            animal.Eating(this);
+            StartCoroutine(DestroyObject());
         }
     }
+    IEnumerator DestroyObject()
+    {
+        yield return new WaitForSeconds(1f);
+        Destroy(gameObject);
+    }
 }
+
