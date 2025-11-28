@@ -415,6 +415,11 @@
 -analyzer:"C:/Program Files/Unity/Hub/Editor/6000.2.7f2/Editor/Data/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll"
 -analyzer:"C:/Program Files/Unity/Hub/Editor/6000.2.7f2/Editor/Data/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 -analyzer:"C:/Program Files/Unity/Hub/Editor/6000.2.7f2/Editor/Data/Tools/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll"
+"Assets/Assets/Scripts/Ability/Ability Base.cs"
+"Assets/Assets/Scripts/Ability/DashAbility.cs"
+"Assets/Assets/Scripts/Ability/HealAbility.cs"
+"Assets/Assets/Scripts/Ability/PlayerAbilityControler.cs"
+"Assets/Assets/Scripts/Ability/ProjectileAbility.cs"
 "Assets/Assets/Scripts/AI/Editor.cs"
 "Assets/Assets/Scripts/AI/GizmoHelper.cs"
 "Assets/Assets/Scripts/AI/Patrol.cs"
@@ -423,8 +428,8 @@
 "Assets/Assets/Scripts/CameraControl.cs"
 "Assets/Assets/Scripts/Food/Food.cs"
 "Assets/Assets/Scripts/Rabbit.cs"
+"Assets/Assets/Scripts/System/FrameRate.cs"
 "Assets/Assets/Singleton/Singleton.cs"
-"Assets/Assets/Terrain/PerlinNoise.cs"
 -langversion:9.0
 /deterministic
 /optimize+
