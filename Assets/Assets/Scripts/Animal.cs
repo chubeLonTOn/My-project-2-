@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Random = UnityEngine.Random;
@@ -104,17 +105,17 @@ public abstract class Animal : MonoBehaviour
         switch (targetPicking)
         {
             case PickingTargetState.Wandering:
-                int spawnRange = Random.Range(10, 25);
+                int spawnRange = Random.Range(15, 25);
                 int counter = 0;
                 while (spawnRange == lastRangeValue && counter <= 10)
                 {
                     counter++;
-                    spawnRange = Random.Range(10, 25);
+                    spawnRange = Random.Range(15, 25);
                         
                 }
                 lastRangeValue = spawnRange;
-                float randomX = Random.Range(transform.position.x - spawnRange, transform.position.x + spawnRange);
-                float randomZ = Random.Range(transform.position.z - spawnRange, transform.position.z + spawnRange);
+                float randomX = Random.Range(-spawnRange, spawnRange) + transform.position.x;
+                float randomZ = Random.Range(-spawnRange, spawnRange) + transform.position.z;
                 var targetPos = new Vector3(randomX, transform.position.y, randomZ);
                 Target.position = targetPos;
                 if ( Hunger <= 25 )
@@ -145,6 +146,8 @@ public abstract class Animal : MonoBehaviour
     [SerializeField] private float urgetobreed;
     [SerializeField] private float waitingDuration;
     [SerializeField] private Transform _target;
+    
+    private List<Food> _lstfood = new  List<Food>();
     private GameObject _food;
     
     //public UnityEvent onReachEvent;
@@ -201,7 +204,7 @@ public abstract class Animal : MonoBehaviour
         }
         _state = states;
     }
-
+    
     private void FindFood()
     {
         GameObject foodSource = FindAnyObjectByType<Food>()?.gameObject;
@@ -225,6 +228,7 @@ public abstract class Animal : MonoBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
+        Gizmos.DrawSphere(_target.transform.position, 0.1f);
         Gizmos.DrawLine(transform.position , Target.transform.position);
     }
 }
