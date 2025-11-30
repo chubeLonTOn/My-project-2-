@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 using Random = UnityEngine.Random;
 
 public abstract class Animal : MonoBehaviour
@@ -147,7 +150,6 @@ public abstract class Animal : MonoBehaviour
     [SerializeField] private float waitingDuration;
     [SerializeField] private Transform _target;
     
-    private List<Food> _lstfood = new  List<Food>();
     private GameObject _food;
     
     //public UnityEvent onReachEvent;
@@ -167,6 +169,7 @@ public abstract class Animal : MonoBehaviour
     
     void Start()
     {
+        
         SwitchState(new WaitStage());
     }
     void Update()
@@ -204,13 +207,29 @@ public abstract class Animal : MonoBehaviour
         }
         _state = states;
     }
+
+    private GameObject GetClosestFood()
+    {
+        Dictionary<GameObject , float> _lstFoodDist = new Dictionary<GameObject, float>();
+        GameObject[] _foodSource = GameObject.FindGameObjectsWithTag("Food");
+        if (_foodSource.Length == 0)
+        {
+            return null;
+        }
+        for (int i = 0; i < _foodSource.Length; i++)
+        {
+            float foodDistance = Vector3.Distance(transform.position , _foodSource[i].transform.position);
+            _lstFoodDist.Add(_foodSource[i] , foodDistance);
+        }
+        var sortedFoodDist = _lstFoodDist.OrderBy(kvp => kvp.Value);
+        return sortedFoodDist.First().Key;
+    }
     
     private void FindFood()
     {
-        GameObject foodSource = FindAnyObjectByType<Food>()?.gameObject;
+        GameObject foodSource = GetClosestFood();
         _food = foodSource;
         if (_food != null) Target.position = _food.transform.position;
-        Debug.LogError("Cant found food source");
         int count = 0;
         while (Hunger >= _hungerFindFoodPoint || count <= 5)
         {
