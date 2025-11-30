@@ -8,9 +8,9 @@ public class Food : MonoBehaviour
     [FormerlySerializedAs("_animal")] [SerializeField] private Rabbit animal;
     public float Filling => filling;
 
-    void OnCollisionEnter(Collision collision)
+    void OnTriggerEnter(Collider collider)
     {
-        if (collision.gameObject.CompareTag("Rabbit"))
+        if (collider.gameObject.CompareTag("Rabbit"))
         {
             animal.Eating(this);
             StartCoroutine(DestroyObject());

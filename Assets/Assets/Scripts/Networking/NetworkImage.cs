@@ -1,3 +1,4 @@
+using Assets.Singleton;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -9,10 +10,18 @@ namespace Assets.Scripts.Networking
         [SerializeField] private string URL;
         [SerializeField] private RawImage rawImage;
         
-        public async void SetImage()
+        public void SetImage()
         {
-            Texture2D texturestored = await ImageUploader.DownloadImageAsync(URL);
-            rawImage.texture = texturestored;
+             CoroutineRunnerSingleton.Instance.StartCoroutine(AsyncHelper.WrapTask<Texture2D>(ImageUploader.DownloadImageAsync(URL), (success, texture) =>
+             {
+                 if(!success)
+                 {
+                     Debug.LogError("Failed to download image");
+                     return;
+                 }                
+                 Texture2D texturestored = texture;
+                 rawImage.texture = texturestored;
+            }));
         }
 
         void Start()

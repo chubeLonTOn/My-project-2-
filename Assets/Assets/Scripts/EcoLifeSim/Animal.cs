@@ -106,6 +106,7 @@ public abstract class Animal : MonoBehaviour
     public PickingTargetState targetPicking;
     public void PickingTarget()
     {
+        // bool isFoodAvaiableInRange = HasFoodAvailableInRange();
         switch (targetPicking)
         {
             case PickingTargetState.Wandering:
@@ -122,7 +123,7 @@ public abstract class Animal : MonoBehaviour
                 float randomZ = Random.Range(-spawnRange, spawnRange) + transform.position.z;
                 var targetPos = new Vector3(randomX, transform.position.y, randomZ);
                 Target.position = targetPos;
-                if ( Hunger <= 25 )
+                if ( Hunger <= 25)
                 {
                     targetPicking = PickingTargetState.LookingForFood;
                 }
@@ -151,6 +152,7 @@ public abstract class Animal : MonoBehaviour
     [SerializeField] private float urgetobreed;
     [SerializeField] private float waitingDuration;
     [SerializeField] private Transform _target;
+    
     
     //public UnityEvent onReachEvent;
     
@@ -222,10 +224,17 @@ public abstract class Animal : MonoBehaviour
         return sortedFoodDist.First().Key;
     }
 
-    public bool HasFoodAvailableInRange()
-    {
-        return false;
-    }
+    // public bool HasFoodAvailableInRange()
+    // {
+    //     GameObject foodSource = GetClosestFood();
+    //     float distance = Vector3.Distance(foodSource.transform.position, transform.position);
+    //     Debug.Log($"Distance: {distance}");
+    //     if (distance <= _findingRadius)
+    //     {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     private void SetFoodPosition()
     {
