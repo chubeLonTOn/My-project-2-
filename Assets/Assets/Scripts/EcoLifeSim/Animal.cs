@@ -128,7 +128,7 @@ public abstract class Animal : MonoBehaviour
                 break;
             
             case PickingTargetState.LookingForFood:
-                FindFood();
+                SetFoodPosition();
                 break;
         }
     }
@@ -145,12 +145,11 @@ public abstract class Animal : MonoBehaviour
     [SerializeField] private float health = 100;
     [SerializeField] public float Hunger = 100;
     [SerializeField] private float _hungerFindFoodPoint = 25;
+    [SerializeField] private float _findingRadius;
     [SerializeField] public float thirst = 100;
     [SerializeField] private float urgetobreed;
     [SerializeField] private float waitingDuration;
     [SerializeField] private Transform _target;
-    
-    private GameObject _food;
     
     //public UnityEvent onReachEvent;
     
@@ -212,10 +211,7 @@ public abstract class Animal : MonoBehaviour
     {
         Dictionary<GameObject , float> _lstFoodDist = new Dictionary<GameObject, float>();
         GameObject[] _foodSource = GameObject.FindGameObjectsWithTag("Food");
-        if (_foodSource.Length == 0)
-        {
-            return null;
-        }
+        if (_foodSource.Length == 0) return null;
         for (int i = 0; i < _foodSource.Length; i++)
         {
             float foodDistance = Vector3.Distance(transform.position , _foodSource[i].transform.position);
@@ -225,11 +221,10 @@ public abstract class Animal : MonoBehaviour
         return sortedFoodDist.First().Key;
     }
     
-    private void FindFood()
+    private void SetFoodPosition()
     {
         GameObject foodSource = GetClosestFood();
-        _food = foodSource;
-        if (_food != null) Target.position = _food.transform.position;
+        if (foodSource != null) Target.position = foodSource.transform.position;
         int count = 0;
         while (Hunger >= _hungerFindFoodPoint || count <= 5)
         {
