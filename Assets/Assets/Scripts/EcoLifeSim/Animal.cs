@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Networking;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Events;
@@ -206,7 +207,7 @@ public abstract class Animal : MonoBehaviour
         }
         _state = states;
     }
-
+    //Assign food source with distance
     private GameObject GetClosestFood()
     {
         Dictionary<GameObject , float> _lstFoodDist = new Dictionary<GameObject, float>();
@@ -220,7 +221,12 @@ public abstract class Animal : MonoBehaviour
         var sortedFoodDist = _lstFoodDist.OrderBy(kvp => kvp.Value);
         return sortedFoodDist.First().Key;
     }
-    
+
+    public bool HasFoodAvailableInRange()
+    {
+        return false;
+    }
+
     private void SetFoodPosition()
     {
         GameObject foodSource = GetClosestFood();
@@ -238,6 +244,7 @@ public abstract class Animal : MonoBehaviour
     {
         if (!food) return;
         Hunger += food.Filling;
+        if (Hunger > 100)  Hunger = 100;
     }
     void OnDrawGizmos()
     {
